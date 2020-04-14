@@ -198,13 +198,8 @@ def _model_loss(model,
           output_loss = loss_fn(targets[i], outs[i], sample_weight=weights)
           loss_reduction = losses_utils.ReductionV2.SUM_OVER_BATCH_SIZE
 
-      # If the number of outputs is 1 then we don't append the loss metric
-      # associated with each model output. When there are multiple outputs
-      # associated with a model, each output's loss is calculated and returned
-      # as part of the loss_metrics.
-      if len(model.outputs) > 1:
-        # Keep track of the stateful output loss result.
-        output_losses.append(output_loss_metrics[i](output_loss))
+      # Keep track of the stateful output loss result.
+      output_losses.append(output_loss_metrics[i](output_loss))
 
       # Scale output loss for distribution. For custom losses we assume
       # reduction was mean.

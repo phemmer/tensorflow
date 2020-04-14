@@ -494,12 +494,11 @@ class Model(training_lib.Model):
     metrics_names = ['loss']
     if self._is_compiled:
       # Add output loss metric names to the metric names list.
-      if len(self._training_endpoints) > 1:
-        metrics_names.extend([
-            e.loss_name()
-            for e in self._training_endpoints
-            if not e.should_skip_target()
-        ])
+      metrics_names.extend([
+          e.loss_name()
+          for e in self._training_endpoints
+          if not e.should_skip_target()
+      ])
 
     # Add all metric names.
     metrics_names += [m.name for m in self.metrics]
@@ -1596,9 +1595,8 @@ class Model(training_lib.Model):
             output_loss = loss_fn(y_true, y_pred, sample_weight=sample_weight)
             loss_reduction = losses_utils.ReductionV2.SUM_OVER_BATCH_SIZE
 
-        if len(self.outputs) > 1:
-          # Keep track of stateful result tensor for the loss.
-          endpoint.output_loss_metric(output_loss)
+        # Keep track of stateful result tensor for the loss.
+        endpoint.output_loss_metric(output_loss)
 
         # Scale output loss for distribution. For custom losses we assume
         # reduction was mean.
@@ -1846,11 +1844,10 @@ class Model(training_lib.Model):
     # Create a metric wrapper for each output loss. This computes mean of an
     # output loss across mini-batches (irrespective of how we reduce within a
     # batch).
-    if len(self._training_endpoints) > 1:
-      for endpoint in self._training_endpoints:
-        if not endpoint.should_skip_target():
-          endpoint.output_loss_metric = metrics_module.Mean(
-              name=endpoint.loss_name())
+    for endpoint in self._training_endpoints:
+      if not endpoint.should_skip_target():
+        endpoint.output_loss_metric = metrics_module.Mean(
+            name=endpoint.loss_name())
 
     self._per_output_metrics = updated_per_output_metrics
     self._per_output_weighted_metrics = updated_per_output_weighted_metrics
